@@ -17,6 +17,8 @@ class VideoRequest(BaseModel):
 
 def descargar_imagen(url, archivo):
     r = requests.get(url)
+    r.raise_for_status()
+
     with open(archivo, "wb") as f:
         f.write(r.content)
 
@@ -39,17 +41,19 @@ def create_video(req: VideoRequest):
 
     for i, url in enumerate(imagenes):
         nombre = f"img_{i}.jpg"
+
         descargar_imagen(url, nombre)
+
         archivos.append(nombre)
 
     clips = []
 
     for archivo in archivos:
-      clip = (
-    ImageClip(nombre)
-    .resized(height=720)
-    .with_duration(2)
-)
+        clip = (
+            ImageClip(archivo)
+            .resized(height=720)
+            .with_duration(2)
+        )
 
         clips.append(clip)
 
