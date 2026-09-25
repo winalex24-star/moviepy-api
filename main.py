@@ -21,7 +21,13 @@ def health():
 def create_video(req: VideoRequest):
 
     return {
-        "mensaje": "Datos recibidos correctamente",
+        "status": "ok",
         "titulo": req.titulo,
-        "cantidad_imagenes": 5
+        "imagenes": [
+            req.imagen1,
+            req.imagen2,
+            req.imagen3,
+            req.imagen4,
+            req.imagen5
+        ]
     }
