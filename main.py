@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from moviepy import ImageClip, concatenate_videoclips
+from moviepy import (
+    ImageClip,
+    ColorClip,
+    CompositeVideoClip,
+    concatenate_videoclips,
+)
 import requests
 import uuid
 
@@ -49,15 +54,30 @@ def create_video(req: VideoRequest):
     clips = []
 
     for archivo in archivos:
-        clip = (
+
+        imagen = (
             ImageClip(archivo)
-            .resized(height=720)
+            .resized(height=900)
             .with_duration(2)
+            .with_position("center")
+        )
+
+        fondo = (
+            ColorClip(
+                size=(720, 1280),
+                color=(0, 0, 0)
+            )
+            .with_duration(2)
+        )
+
+        clip = CompositeVideoClip(
+            [fondo, imagen],
+            size=(720, 1280)
         )
 
         clips.append(clip)
 
-    video = concatenate_videoclips(clips)
+        video = concatenate_videoclips(clips)
 
     nombre_video = f"{uuid.uuid4()}.mp4"
 
