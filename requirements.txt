@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+moviepy
+pillow
+requests
+python-multipart
