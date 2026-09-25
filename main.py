@@ -1,16 +1,19 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+
 from moviepy import (
     ImageClip,
     ColorClip,
     CompositeVideoClip,
     concatenate_videoclips,
 )
+
 import requests
 import uuid
 
 app = FastAPI()
+
 
 class VideoRequest(BaseModel):
     titulo: str
@@ -20,16 +23,19 @@ class VideoRequest(BaseModel):
     imagen4: str
     imagen5: str
 
+
 def descargar_imagen(url, archivo):
-    r = requests.get(url)
+    r = requests.get(url, timeout=30)
     r.raise_for_status()
 
     with open(archivo, "wb") as f:
         f.write(r.content)
 
+
 @app.get("/")
 def health():
     return {"status": "ok"}
+
 
 @app.post("/video")
 def create_video(req: VideoRequest):
@@ -47,6 +53,8 @@ def create_video(req: VideoRequest):
     for i, url in enumerate(imagenes):
         nombre = f"img_{i}.jpg"
 
+        print(f"Descargando: {nombre}")
+
         descargar_imagen(url, nombre)
 
         archivos.append(nombre)
@@ -55,9 +63,11 @@ def create_video(req: VideoRequest):
 
     for archivo in archivos:
 
+        print(f"Procesando: {archivo}")
+
         imagen = (
             ImageClip(archivo)
-            .resized(height=900)
+            .resized(height=720)
             .with_duration(2)
             .with_position("center")
         )
@@ -77,15 +87,21 @@ def create_video(req: VideoRequest):
 
         clips.append(clip)
 
-        video = concatenate_videoclips(clips)
+    print("Uniendo clips...")
+
+    video = concatenate_videoclips(clips)
 
     nombre_video = f"{uuid.uuid4()}.mp4"
+
+    print(f"Generando video: {nombre_video}")
 
     video.write_videofile(
         nombre_video,
         fps=12,
         codec="libx264"
     )
+
+    print("Video generado correctamente")
 
     return FileResponse(
         nombre_video,
