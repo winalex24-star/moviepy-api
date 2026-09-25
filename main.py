@@ -67,14 +67,14 @@ def create_video(req: VideoRequest):
 
         imagen = (
             ImageClip(archivo)
-            .resized(height=720)
-            .with_duration(2)
+            .resized(height=480)
+            .with_duration(1)
             .with_position("center")
         )
 
         fondo = (
             ColorClip(
-                size=(720, 1280),
+                size=(480, 854),
                 color=(0, 0, 0)
             )
             .with_duration(2)
@@ -82,7 +82,7 @@ def create_video(req: VideoRequest):
 
         clip = CompositeVideoClip(
             [fondo, imagen],
-            size=(720, 1280)
+            size=(480, 854)
         )
 
         clips.append(clip)
@@ -97,7 +97,7 @@ def create_video(req: VideoRequest):
 
     video.write_videofile(
         nombre_video,
-        fps=12,
+        fps=6,
         codec="libx264"
     )
 
