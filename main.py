@@ -14,19 +14,14 @@ class VideoRequest(BaseModel):
 @app.get("/")
 def health():
     return {
-        "status": "ok",
-        "service": "moviepy-api"
+        "status": "ok"
     }
 
 @app.post("/video")
 def create_video(req: VideoRequest):
+
     return {
+        "mensaje": "Datos recibidos correctamente",
         "titulo": req.titulo,
-        "imagenes": [
-            req.imagen1,
-            req.imagen2,
-            req.imagen3,
-            req.imagen4,
-            req.imagen5
-        ]
+        "cantidad_imagenes": 5
     }
