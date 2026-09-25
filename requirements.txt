@@ -4,3 +4,6 @@ moviepy
 pillow
 requests
 python-multipart
+numpy
+imageio
+imageio-ffmpeg
