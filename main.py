@@ -65,12 +65,14 @@ def create_video(req: VideoRequest):
 
         print(f"Procesando: {archivo}")
 
-        imagen = (
-            ImageClip(archivo)
-            .resized(height=480)
-            .with_duration(1)
-            .with_position("center")
-        )
+       imagen = (
+    ImageClip(archivo)
+    .resized(height=480)
+    .with_duration(2)
+    .with_position("center")
+    .resized(lambda t: 1 + 0.08 * t)
+)
+`
 
         fondo = (
             ColorClip(
