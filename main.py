@@ -45,11 +45,11 @@ def create_video(req: VideoRequest):
     clips = []
 
     for archivo in archivos:
-        clip = (
-            ImageClip(archivo)
-            .resized(height=1920)
-            .with_duration(3)
-        )
+      clip = (
+    ImageClip(nombre)
+    .resized(height=720)
+    .with_duration(2)
+)
 
         clips.append(clip)
 
@@ -59,7 +59,7 @@ def create_video(req: VideoRequest):
 
     video.write_videofile(
         nombre_video,
-        fps=24,
+        fps=12,
         codec="libx264"
     )
 
