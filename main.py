@@ -12,6 +12,7 @@ from moviepy import (
 
 import requests
 import uuid
+import os
 
 app = FastAPI()
 
@@ -35,11 +36,22 @@ def descargar_imagen(url, archivo):
 
 
 def descargar_audio(url, archivo):
+
+    print("AUDIO URL:")
+    print(url)
+
     r = requests.get(url, timeout=60)
+
+    print("CONTENT TYPE:")
+    print(r.headers.get("content-type"))
+
     r.raise_for_status()
 
     with open(archivo, "wb") as f:
         f.write(r.content)
+
+    print("TAMANO AUDIO:")
+    print(os.path.getsize(archivo))
 
 
 @app.get("/")
@@ -58,6 +70,8 @@ def create_video(req: VideoRequest):
         req.audio_url,
         audio_file
     )
+
+    print("Abriendo audio...")
 
     audio = AudioFileClip(audio_file)
 
