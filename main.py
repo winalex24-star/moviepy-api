@@ -72,4 +72,3 @@ def create_video(req: VideoRequest):
         "size": os.path.getsize(audio_file),
         "primeros_bytes": str(primeros_bytes[:100])
     }
-``
