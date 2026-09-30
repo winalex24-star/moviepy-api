@@ -1,17 +1,6 @@
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
-
-from moviepy import (
-    ImageClip,
-    ColorClip,
-    CompositeVideoClip,
-    AudioFileClip,
-    concatenate_videoclips,
-)
-
 import requests
-import uuid
 import os
 
 app = FastAPI()
@@ -27,20 +16,20 @@ class VideoRequest(BaseModel):
     imagen5: str
 
 
-def descargar_imagen(url, archivo):
-    r = requests.get(url, timeout=60)
-    r.raise_for_status()
-
-    with open(archivo, "wb") as f:
-        f.write(r.content)
-
-
 def descargar_audio(url, archivo):
 
+    print("================================")
     print("AUDIO URL:")
     print(url)
 
-    r = requests.get(url, timeout=60)
+    r = requests.get(
+        url,
+        timeout=60,
+        allow_redirects=True
+    )
+
+    print("STATUS CODE:")
+    print(r.status_code)
 
     print("CONTENT TYPE:")
     print(r.headers.get("content-type"))
@@ -53,6 +42,8 @@ def descargar_audio(url, archivo):
     print("TAMANO AUDIO:")
     print(os.path.getsize(archivo))
 
+    print("================================")
+
 
 @app.get("/")
 def health():
@@ -62,8 +53,6 @@ def health():
 @app.post("/video")
 def create_video(req: VideoRequest):
 
-    print("Descargando audio...")
-
     audio_file = "audio.mp3"
 
     descargar_audio(
@@ -71,107 +60,16 @@ def create_video(req: VideoRequest):
         audio_file
     )
 
-    print("Abriendo audio...")
+    with open(audio_file, "rb") as f:
+        primeros_bytes = f.read(300)
 
-import os
+    print("PRIMEROS BYTES:")
+    print(primeros_bytes)
 
-print("================================")
-print("AUDIO URL RECIBIDA:")
-print(req.audio_url)
-
-print("TAMANO ARCHIVO:")
-print(os.path.getsize(audio_file))
-
-with open(audio_file, "rb") as f:
-    contenido = f.read(300)
-
-print("PRIMEROS BYTES:")
-print(contenido)
-
-print("================================")
-
-return {
-    "audio_url": req.audio_url,
-    "size": os.path.getsize(audio_file)
-}
+    return {
+        "titulo": req.titulo,
+        "audio_url": req.audio_url,
+        "size": os.path.getsize(audio_file),
+        "primeros_bytes": str(primeros_bytes[:100])
+    }
 ``
-   
-
-    print(f"Duracion audio: {duracion_audio}")
-
-    imagenes = [
-        req.imagen1,
-        req.imagen2,
-        req.imagen3,
-        req.imagen4,
-        req.imagen5,
-    ]
-
-    duracion_por_imagen = duracion_audio / len(imagenes)
-
-    archivos = []
-
-    for i, url in enumerate(imagenes):
-
-        nombre = f"img_{i}.jpg"
-
-        print(f"Descargando imagen: {nombre}")
-
-        descargar_imagen(url, nombre)
-
-        archivos.append(nombre)
-
-    clips = []
-
-    for archivo in archivos:
-
-        print(f"Procesando: {archivo}")
-
-        imagen = (
-            ImageClip(archivo)
-            .resized(height=480)
-            .with_duration(duracion_por_imagen)
-            .with_position("center")
-        )
-
-        fondo = (
-            ColorClip(
-                size=(480, 854),
-                color=(0, 0, 0)
-            )
-            .with_duration(duracion_por_imagen)
-        )
-
-        clip = CompositeVideoClip(
-            [fondo, imagen],
-            size=(480, 854)
-        )
-
-        clips.append(clip)
-
-    print("Uniendo clips...")
-
-    video = concatenate_videoclips(clips)
-
-    print("Agregando audio...")
-
-    video = video.with_audio(audio)
-
-    nombre_video = f"{uuid.uuid4()}.mp4"
-
-    print(f"Generando video: {nombre_video}")
-
-    video.write_videofile(
-        nombre_video,
-        fps=6,
-        codec="libx264",
-        audio_codec="aac"
-    )
-
-    print("Video generado correctamente")
-
-    return FileResponse(
-        nombre_video,
-        media_type="video/mp4",
-        filename=f"{req.titulo}.mp4"
-    )
