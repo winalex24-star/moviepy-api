@@ -73,9 +73,29 @@ def create_video(req: VideoRequest):
 
     print("Abriendo audio...")
 
-    audio = AudioFileClip(audio_file)
+import os
 
-    duracion_audio = audio.duration
+print("================================")
+print("AUDIO URL RECIBIDA:")
+print(req.audio_url)
+
+print("TAMANO ARCHIVO:")
+print(os.path.getsize(audio_file))
+
+with open(audio_file, "rb") as f:
+    contenido = f.read(300)
+
+print("PRIMEROS BYTES:")
+print(contenido)
+
+print("================================")
+
+return {
+    "audio_url": req.audio_url,
+    "size": os.path.getsize(audio_file)
+}
+``
+   
 
     print(f"Duracion audio: {duracion_audio}")
 
